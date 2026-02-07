@@ -1,0 +1,28 @@
+{
+  "name": "actividad-3-desarrollo-full-stack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wildnest334/Actividad-3-Desarrollo-Full-Stack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wildnest334/Actividad-3-Desarrollo-Full-Stack/issues"
+  },
+  "homepage": "https://github.com/wildnest334/Actividad-3-Desarrollo-Full-Stack#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3"
+  }
+}

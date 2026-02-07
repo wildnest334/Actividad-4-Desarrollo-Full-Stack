@@ -1,0 +1,29 @@
+{
+  "name": "api-tareas",
+  "version": "1.0.0",
+  "description": "API RESTful de tareas con Node.js y Express",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wildnest334/Actividad-3-Desarrollo-Full-Stack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wildnest334/Actividad-3-Desarrollo-Full-Stack/issues"
+  },
+  "homepage": "https://github.com/wildnest334/Actividad-3-Desarrollo-Full-Stack#readme"
+}
