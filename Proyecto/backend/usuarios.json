@@ -6,5 +6,77 @@
   {
     "username": "12344",
     "password": "$2b$10$QBGObTeyQyuQVolbLsf4X.QVWobg2ltLwFIOU/nmaCfIFjTxHgLR2"
+  },
+  {
+    "username": "12345",
+    "password": "$2b$10$GjecnAj7hdDGekIkrBUQRedeUmyaQIKG.cFGtWTp/hbC/X6YsSv2u"
+  },
+  {
+    "username": "123456",
+    "password": "$2b$10$CXt0vI9CyZPh9X6tTq/hhelTadx.zKuUnxH4b/vKfpO7o/656/aY6"
+  },
+  {
+    "username": "12345678",
+    "password": "$2b$10$jO4W/Ow1lGcnEPQwD7UqFusA073D1Zo8NS.zjILzb676M9esxtPp6"
+  },
+  {
+    "username": "arielo",
+    "password": "$2b$10$bRPN3/7CnaFmSW8UNzKnbe3E.JwCJNR2.m2PKuGbIh0jd/lBMTo3K"
+  },
+  {
+    "username": "arielo1",
+    "password": "$2b$10$eV9mBnxpBzyYhWLn/aN/RujMjrRKV4A4nkwNrNQ0WVWUcJVCoy1jS"
+  },
+  {
+    "username": "arielo5",
+    "password": "$2b$10$4zOMxf9f4Ji1aFXiZsrdIOy8XqRtSoEj195TXPmjMe17UKrQj48oG"
+  },
+  {
+    "username": "yaromi",
+    "password": "$2b$10$nCqfvaRXnlFryq.Bv38IWuI9QaYgP/RDVkupkUF8jOhQe/7zC5N8i"
+  },
+  {
+    "username": "luis",
+    "password": "$2b$10$G1jDuKfzZ.JrRQZRlps2TOQADuCZixh45Gp3LbDY66H5g3TRJn4b2"
+  },
+  {
+    "username": "oli",
+    "password": "$2b$10$nk8t/SvZQzhVOMspzgd89eigAPLHUBRTz/uwJRfY82DHxqA20Dz.e"
+  },
+  {
+    "username": "si",
+    "password": "$2b$10$G.aifH0pw7N6iQIndVER7ufnHv/HKpxy4EQXEI6p2OwLEAbZX3B.e"
+  },
+  {
+    "username": "oki",
+    "password": "$2b$10$/MlpbO2WBzP9D8MUmMf1UuLfY5mFfgoLsVIeVkk6/v37wfUl5iOEO"
+  },
+  {
+    "username": "lolin",
+    "password": "$2b$10$HwxlOSegrgXQCI/v2nCtg.ljeEvNc53fjzHRw3hr4nFwQRoENSvl."
+  },
+  {
+    "username": "1",
+    "password": "$2b$10$PRusFCKdyzjuBh8t19etUuzn3mUJyKlY0gMCTNEKvVnVQSEjVOq7S"
+  },
+  {
+    "username": "adrian",
+    "password": "$2b$10$CWoeu3wfIspL9Y8C/GFIpeFfvyS/l76LmFCJfbHu3Z57xssqyLiB6"
+  },
+  {
+    "username": "ariso",
+    "password": "$2b$10$E1x727/RVX68xsHz8xzvsubxzGAdL3LNet7BSo0XnuRwvRo1PcuIO"
+  },
+  {
+    "username": "xxxxxxxxxxxxx",
+    "password": "$2b$10$PgVtxlXp0Gm3C57I5Q69OOYfAzjupyQToa5Xdr57THvt1LSN44s/m"
+  },
+  {
+    "username": "cccc",
+    "password": "$2b$10$BCLcQ59NSRK.eSboeYGXiOQq1S3LNMm7CSKT64O/Ykpa.ylhNsp9O"
+  },
+  {
+    "username": "ffffffffffff",
+    "password": "$2b$10$4EKUGmdb/C4rk9oL2/gRBedQ92gtwZFRht9l7afaP1FTGRHlVBpAC"
   }
 ]

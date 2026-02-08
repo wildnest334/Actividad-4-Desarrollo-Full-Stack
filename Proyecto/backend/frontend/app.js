@@ -1,22 +1,12 @@
-let tareas = [
-    {
-        id: '1',
-        nombre: 'Diseñar interfaz',
-        asignadoA: 'Juan Pérez',
-        fechaCreacion: '2026-02-01',
-        estado: 'pendiente'
-    },
-    {
-        id: '2',
-        nombre: 'Documentar proyecto',
-        asignadoA: 'María García',
-        fechaCreacion: '2026-02-02',
-        estado: 'completada'
-    }
-];
-
+// ===============================
+// ESTADO
+// ===============================
+let tareas = [];
 let editandoId = null;
 
+// ===============================
+// DOM
+// ===============================
 const form = document.getElementById('download-form');
 const nombreInput = document.getElementById('nombre');
 const asignadoAInput = document.getElementById('asignadoA');
@@ -24,38 +14,142 @@ const fechaCreacionInput = document.getElementById('fechaCreacion');
 const cancelBtn = document.getElementById('cancel-btn');
 const list = document.getElementById('downloads-list');
 
-function init() {
-    fechaCreacionInput.value = new Date().toISOString().split('T')[0];
-    form.addEventListener('submit', guardarTarea);
-    cancelBtn.addEventListener('click', cancelarEdicion);
-    render();
+// Agregamos botón de logout dinámicamente
+const logoutBtn = document.createElement('button');
+logoutBtn.textContent = 'Cerrar sesión';
+logoutBtn.className = 'btn-logout';
+logoutBtn.style.marginBottom = '10px';
+document.body.insertBefore(logoutBtn, document.body.firstChild);
+logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = '/index.html';
+});
+
+// ===============================
+// STORAGE
+// ===============================
+function guardarEnStorage() {
+    localStorage.setItem('tareas', JSON.stringify(tareas));
+    guardarEnJSON(); // <-- ahora también se guarda en JSON
 }
 
+function cargarDesdeStorage() {
+    tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+}
+
+// ===============================
+// INIT
+// ===============================
+function init() {
+    cargarDesdeStorage();
+    render();
+    form.addEventListener('submit', guardarTarea);
+    cancelBtn.addEventListener('click', cancelarEdicion);
+}
+
+// ===============================
+// GUARDAR
+// ===============================
 function guardarTarea(e) {
     e.preventDefault();
 
-    const tarea = {
+    const nuevaTarea = {
+        id: Date.now().toString(),
         nombre: nombreInput.value.trim(),
         asignadoA: asignadoAInput.value.trim(),
-        fechaCreacion: fechaCreacionInput.value
+        fechaCreacion: fechaCreacionInput.value,
+        estado: 'pendiente'
     };
 
-    if (editandoId) {
-        tareas = tareas.map(t =>
-            t.id === editandoId ? { ...t, ...tarea } : t
-        );
-    } else {
-        tareas.unshift({
-            id: Date.now().toString(),
-            ...tarea,
-            estado: 'pendiente'
-        });
-    }
+    tareas.push(nuevaTarea);
 
-    limpiarFormulario();
+    guardarEnStorage();
+    form.reset();
     render();
 }
 
+// ===============================
+// GUARDAR EN JSON (backend)
+// ===============================
+async function guardarEnJSON() {
+    const token = localStorage.getItem('token'); // si usas auth
+
+    try {
+        // sincronizamos TODO el arreglo de tareas
+        for (const t of tareas) {
+            const res = await fetch('/api/tareas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token || ''}`
+                },
+                body: JSON.stringify(t)
+            });
+
+            // Redirigir al login si no autorizado
+            if (res.status === 401) {
+                alert('Tu sesión expiró o no tienes permisos, serás redirigido al login');
+                localStorage.removeItem('token');
+                window.location.href = '/index.html';
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Error al guardar en JSON:', error);
+    }
+}
+
+// ===============================
+// ACTUALIZAR TAREA EN JSON
+// ===============================
+async function actualizarEnJSON(tarea) {
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`/api/tareas/${tarea.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token || ''}`
+            },
+            body: JSON.stringify(tarea)
+        });
+
+        if (res.status === 401) {
+            alert('No tienes permisos o tu sesión expiró, serás redirigido al login');
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
+    } catch (error) {
+        console.error('Error al actualizar en JSON:', error);
+    }
+}
+
+// ===============================
+// ELIMINAR TAREA EN JSON
+// ===============================
+async function eliminarEnJSON(id) {
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`/api/tareas/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token || ''}`
+            }
+        });
+
+        if (res.status === 401) {
+            alert('No tienes permisos o tu sesión expiró, serás redirigido al login');
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
+    } catch (error) {
+        console.error('Error al eliminar en JSON:', error);
+    }
+}
+
+// ===============================
+// RENDER
+// ===============================
 function render() {
     document.getElementById('total-count').textContent = tareas.length;
     list.innerHTML = '';
@@ -79,18 +173,15 @@ function render() {
                 <div class="download-info">
                     <h3 class="download-title">${t.nombre}</h3>
                     <div class="download-meta">
-                        <div class="meta-item">
-                            <span class="label">Asignado a:</span> ${t.asignadoA}
-                        </div>
-                        <div class="meta-item">
-                            <span class="label">Fecha:</span> ${formatearFecha(t.fechaCreacion)}
-                        </div>
+                        <div class="meta-item"><span class="label">Asignado a:</span> ${t.asignadoA}</div>
+                        <div class="meta-item"><span class="label">Fecha:</span> ${t.fechaCreacion}</div>
+                        <div class="meta-item"><span class="label">Estado:</span> ${t.estado}</div>
                     </div>
                 </div>
                 <div class="download-actions">
-                    <button class="action-btn action-btn-green" onclick="completar('${t.id}')">✔</button>
-                    <button class="action-btn action-btn-indigo" onclick="editar('${t.id}')">✎</button>
-                    <button class="action-btn action-btn-red" onclick="eliminar('${t.id}')">🗑</button>
+                    <button class="action-btn action-btn-green" onclick="redirigir('${t.id}','completar')">✔</button>
+                    <button class="action-btn action-btn-indigo" onclick="redirigir('${t.id}','editar')">✎</button>
+                    <button class="action-btn action-btn-red" onclick="redirigir('${t.id}','eliminar')">🗑</button>
                 </div>
             </div>
         `;
@@ -98,40 +189,49 @@ function render() {
     });
 }
 
+// ===============================
+// REDIRECCIÓN
+// ===============================
+function redirigir(id, accion) {
+    localStorage.setItem('tareaSeleccionada', id);
+    localStorage.setItem('accionPendiente', accion);
+    window.location.href = '/index.html'; // Redirige al login si intenta modificar
+}
+
+// ===============================
+function cancelarEdicion() {
+    form.reset();
+}
+
+// ===============================
+// ACCIONES
+// ===============================
 function completar(id) {
-    tareas = tareas.map(t =>
-        t.id === id ? { ...t, estado: 'completada' } : t
-    );
-    render();
+    const t = tareas.find(t => t.id === id);
+    if (!t) return;
+    t.estado = 'completada';
+    guardarEnStorage();
+    actualizarEnJSON(t);
+}
+
+function eliminar(id) {
+    const index = tareas.findIndex(t => t.id === id);
+    if (index === -1) return;
+    tareas.splice(index, 1);
+    guardarEnStorage();
+    eliminarEnJSON(id);
 }
 
 function editar(id) {
     const t = tareas.find(t => t.id === id);
-    editandoId = id;
-    nombreInput.value = t.nombre;
-    asignadoAInput.value = t.asignadoA;
-    fechaCreacionInput.value = t.fechaCreacion;
-    cancelBtn.style.display = 'inline-flex';
+    if (!t) return;
+    const nuevoNombre = prompt('Nuevo nombre de la tarea', t.nombre);
+    if (nuevoNombre) {
+        t.nombre = nuevoNombre;
+        guardarEnStorage();
+        actualizarEnJSON(t);
+    }
 }
 
-function eliminar(id) {
-    tareas = tareas.filter(t => t.id !== id);
-    render();
-}
-
-function cancelarEdicion() {
-    limpiarFormulario();
-}
-
-function limpiarFormulario() {
-    editandoId = null;
-    form.reset();
-    fechaCreacionInput.value = new Date().toISOString().split('T')[0];
-    cancelBtn.style.display = 'none';
-}
-
-function formatearFecha(fecha) {
-    return new Date(fecha).toLocaleDateString('es-MX');
-}
-
+// ===============================
 init();

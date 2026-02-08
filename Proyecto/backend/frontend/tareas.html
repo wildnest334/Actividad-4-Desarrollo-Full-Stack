@@ -2,48 +2,153 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mis Tareas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h2>Lista de Tareas</h2>
-    <ul id="listaTareas"></ul>
 
-    <script>
-        async function cargarTareas() {
-            const token = localStorage.getItem('token'); // obtener token
-            if (!token) {
-                alert('Debes iniciar sesión primero');
-                window.location.href = '/login.html';
-                return;
-            }
+<div class="container">
 
-            try {
-                const res = await fetch('http://localhost:3000/tareas', {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-content">
+            <svg class="icon-header" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5h6m-6 4h6m-7 4h8m-9 4h10"></path>
+            </svg>
+            <h1>Gestión de Tareas</h1>
+        </div>
+        <p class="subtitle">Aquí puedes administrar tus tareas</p>
+    </div>
 
-                if (!res.ok) {
-                    alert('No tienes acceso. Inicia sesión nuevamente.');
-                    window.location.href = '/login.html';
-                    return;
-                }
+    <!-- LISTA DE TAREAS -->
+    <div class="card">
+        <div class="list-header">
+            <h2>Tareas</h2>
+        </div>
 
-                const tareas = await res.json();
-                const ul = document.getElementById('listaTareas');
-                ul.innerHTML = '';
-                tareas.forEach(t => {
-                    const li = document.createElement('li');
-                    li.textContent = `${t.titulo} - ${t.descripcion} (${t.estado})`;
-                    ul.appendChild(li);
-                });
+        <div id="mensaje" class="empty-state"></div>
+        <div id="listaTareas"></div>
+    </div>
 
-            } catch (err) {
-                console.error(err);
-                alert('Error al cargar las tareas');
-            }
+    <!-- LOGOUT -->
+    <div class="card">
+        <button id="logout" class="btn-secondary">Cerrar sesión</button>
+    </div>
+
+</div>
+
+<script>
+    const listaTareas = document.getElementById('listaTareas');
+    const mensaje = document.getElementById('mensaje');
+    const logoutBtn = document.getElementById('logout');
+
+    const tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+    const id = localStorage.getItem('tareaSeleccionada');
+    const accion = localStorage.getItem('accionPendiente');
+
+    function render() {
+        listaTareas.innerHTML = '';
+        mensaje.innerHTML = '';
+
+        if (tareas.length === 0) {
+            mensaje.innerHTML = `
+                <p>No hay tareas registradas</p>
+                <p>Agrega tareas desde la pantalla principal</p>
+            `;
+            return;
         }
 
-        cargarTareas();
-    </script>
+        tareas.forEach(t => {
+            const item = document.createElement('div');
+            item.className = 'download-item';
+
+            item.innerHTML = `
+                <div class="download-content">
+
+                    <div class="download-info">
+                        <div class="download-header">
+                            <div class="status-icon ${t.estado === 'completada' ? 'status-completada' : 'status-descargando'}">
+                                ✔
+                            </div>
+
+                            <div class="download-title-section">
+                                <div class="download-title">${t.nombre}</div>
+                                <div class="download-size">Asignado a: ${t.asignadoA}</div>
+                            </div>
+
+                            <span class="status-badge ${
+                                t.estado === 'completada' ? 'badge-green' : 'badge-blue'
+                            }">
+                                ${t.estado}
+                            </span>
+                        </div>
+
+                        <div class="download-meta">
+                            <div class="meta-item">
+                                <span class="label">Fecha:</span> ${t.fechaCreacion}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="download-actions">
+                        <button class="action-btn action-btn-indigo" onclick="editar('${t.id}')">✏️</button>
+                        <button class="action-btn action-btn-green" onclick="completar('${t.id}')">✅</button>
+                        <button class="action-btn action-btn-red" onclick="eliminar('${t.id}')">🗑</button>
+                    </div>
+
+                </div>
+            `;
+
+            listaTareas.appendChild(item);
+        });
+    }
+
+    function completar(id) {
+        const t = tareas.find(t => t.id === id);
+        if (!t) return;
+        t.estado = 'completada';
+        guardar();
+    }
+
+    function eliminar(id) {
+        const index = tareas.findIndex(t => t.id === id);
+        if (index === -1) return;
+        tareas.splice(index, 1);
+        guardar();
+    }
+
+    function editar(id) {
+        const t = tareas.find(t => t.id === id);
+        if (!t) return;
+        const nuevoNombre = prompt('Nuevo nombre de la tarea', t.nombre);
+        if (nuevoNombre) {
+            t.nombre = nuevoNombre;
+            guardar();
+        }
+    }
+
+    function guardar() {
+        localStorage.setItem('tareas', JSON.stringify(tareas));
+        localStorage.removeItem('accionPendiente');
+        localStorage.removeItem('tareaSeleccionada');
+        render();
+    }
+
+    if (id && accion) {
+        if (accion === 'completar') completar(id);
+        if (accion === 'eliminar') eliminar(id);
+        if (accion === 'editar') editar(id);
+    }
+
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+    });
+
+    render();
+</script>
+
 </body>
 </html>

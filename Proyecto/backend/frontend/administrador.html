@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <svg class="icon-header" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5h6m-6 4h6m-7 4h8m-9 4h10"></path>
+                </svg>
+                <h1>Administrador de Tareas</h1>
+            </div>
+            <p class="subtitle">Gestiona todas tus tareas en un solo lugar</p>
+        </div>
+
+        <div class="card">
+            <h2 id="form-title">Nueva Tarea</h2>
+            <form id="download-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre">Nombre de la tarea</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="asignadoA">Asignado a</label>
+                        <input type="text" id="asignadoA" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fechaCreacion">Fecha de asignación</label>
+                    <input type="date" id="fechaCreacion" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-primary">
+                        Agregar tarea
+                    </button>
+                    <button type="button" class="btn-secondary" id="cancel-btn" style="display:none;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="list-header">
+                <h2>Tareas (<span id="total-count">0</span>)</h2>
+            </div>
+            <div id="downloads-list"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

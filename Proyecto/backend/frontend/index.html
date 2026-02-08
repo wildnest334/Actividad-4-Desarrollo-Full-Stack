@@ -2,59 +2,62 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrador de Tareas</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Login de Usuario</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f2f2f2; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2); width: 300px; }
+        input { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        .message { margin-top: 10px; color: red; font-size: 14px; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="header-content">
-                <svg class="icon-header" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 5h6m-6 4h6m-7 4h8m-9 4h10"></path>
-                </svg>
-                <h1>Administrador de Tareas</h1>
-            </div>
-            <p class="subtitle">Gestiona todas tus tareas en un solo lugar</p>
-        </div>
-
-        <div class="card">
-            <h2 id="form-title">Nueva Tarea</h2>
-            <form id="download-form">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="nombre">Nombre de la tarea</label>
-                        <input type="text" id="nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="asignadoA">Asignado a</label>
-                        <input type="text" id="asignadoA" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="fechaCreacion">Fecha de asignación</label>
-                    <input type="date" id="fechaCreacion" required>
-                </div>
-                <div class="form-buttons">
-                    <button type="submit" class="btn-primary">
-                        Agregar tarea
-                    </button>
-                    <button type="button" class="btn-secondary" id="cancel-btn" style="display:none;">
-                        Cancelar
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <div class="card">
-            <div class="list-header">
-                <h2>Tareas (<span id="total-count">0</span>)</h2>
-            </div>
-            <div id="downloads-list"></div>
-        </div>
+        <h2>Iniciar Sesión</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Usuario" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <button type="submit">Ingresar</button>
+        </form>
+        <div class="message" id="message"></div>
+        <p>¿No tienes cuenta? <a href="/register">Registrarse</a></p>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const form = document.getElementById('loginForm');
+        const message = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Guardar token
+                    localStorage.setItem('token', data.token);
+
+                    // Redirigir según la ruta que envía el servidor
+                    window.location.href = data.redirect;
+                } else {
+                    message.style.color = 'red';
+                    message.textContent = data.error;
+                }
+            } catch (err) {
+                console.error(err);
+                message.style.color = 'red';
+                message.textContent = 'Error de conexión con el servidor';
+            }
+        });
+    </script>
 </body>
 </html>
