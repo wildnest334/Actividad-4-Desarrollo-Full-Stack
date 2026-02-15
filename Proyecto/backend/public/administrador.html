@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador de Productos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <svg class="icon-header" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                <h1>Administrador de Productos</h1>
+            </div>
+            <p class="subtitle">Gestiona todos tus productos en un solo lugar</p>
+        </div>
+
+        <div class="card">
+            <h2 id="formTitle">Agregar Producto</h2>
+            <form id="productoForm">
+                <input type="hidden" id="productoId">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre">Nombre del producto</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio">Precio</label>
+                        <input type="number" id="precio" required>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="stock">Stock</label>
+                        <input type="number" id="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaCaducidad">Fecha de caducidad</label>
+                        <input type="date" id="fechaCaducidad">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <input type="text" id="descripcion">
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="btn-primary">
+                        Guardar
+                    </button>
+                    <button type="button" class="btn-secondary" id="cancelarEdit" style="display:none;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="list-header">
+                <h2>Lista de Productos</h2>
+                <button class="btn-secondary" id="logout">Cerrar sesión</button>
+            </div>
+            <div id="listaProductos"></div>
+        </div>
+    </div>
+
+<script>
+const form = document.getElementById('productoForm');
+const lista = document.getElementById('listaProductos');
+const logoutBtn = document.getElementById('logout');
+const cancelarEditBtn = document.getElementById('cancelarEdit');
+const formTitle = document.getElementById('formTitle');
+
+const token = localStorage.getItem('token');
+
+if (!token) {
+    window.location.href = "index.html";
+}
+
+// ============================
+// CARGAR PRODUCTOS
+// ============================
+async function cargarProductos() {
+    const res = await fetch('/api/productos', {
+        headers: { 'Authorization': token }
+    });
+
+    if (res.status === 401) {
+        alert("Sesión expirada");
+        localStorage.removeItem('token');
+        window.location.href = "index.html";
+        return;
+    }
+
+    const productos = await res.json();
+    render(productos);
+}
+
+// ============================
+// GUARDAR (CREATE o UPDATE)
+// ============================
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('productoId').value;
+
+    const producto = {
+        nombre: document.getElementById('nombre').value,
+        descripcion: document.getElementById('descripcion').value,
+        precio: document.getElementById('precio').value,
+        stock: document.getElementById('stock').value,
+        fechaCaducidad: document.getElementById('fechaCaducidad').value
+    };
+
+    if (id) {
+        // EDITAR
+        await fetch(`/api/productos/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            },
+            body: JSON.stringify(producto)
+        });
+    } else {
+        // CREAR
+        await fetch('/api/productos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            },
+            body: JSON.stringify(producto)
+        });
+    }
+
+    resetForm();
+    cargarProductos();
+});
+
+// ============================
+// EDITAR
+// ============================
+function editar(producto) {
+    document.getElementById('productoId').value = producto._id;
+    document.getElementById('nombre').value = producto.nombre;
+    document.getElementById('descripcion').value = producto.descripcion;
+    document.getElementById('precio').value = producto.precio;
+    document.getElementById('stock').value = producto.stock;
+    document.getElementById('fechaCaducidad').value = producto.fechaCaducidad 
+        ? producto.fechaCaducidad.split('T')[0] 
+        : "";
+
+    formTitle.textContent = "Editar Producto";
+    cancelarEditBtn.style.display = "inline";
+}
+
+// ============================
+// ELIMINAR
+// ============================
+async function eliminar(id) {
+    await fetch(`/api/productos/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': token }
+    });
+
+    cargarProductos();
+}
+
+// ============================
+// RESET FORM
+// ============================
+function resetForm() {
+    form.reset();
+    document.getElementById('productoId').value = "";
+    formTitle.textContent = "Agregar Producto";
+    cancelarEditBtn.style.display = "none";
+}
+
+cancelarEditBtn.addEventListener('click', resetForm);
+
+// ============================
+// RENDER
+// ============================
+function render(productos) {
+    lista.innerHTML = "";
+
+    productos.forEach(p => {
+        lista.innerHTML += `
+            <div>
+                <h3>${p.nombre}</h3>
+                <p>Precio: $${p.precio}</p>
+                <p>Stock: ${p.stock}</p>
+                <p>Caduca: ${p.fechaCaducidad ? p.fechaCaducidad.split('T')[0] : "No definida"}</p>
+                <button onclick='editar(${JSON.stringify(p)})'>Editar</button>
+                <button onclick="eliminar('${p._id}')">Eliminar</button>
+                <hr>
+            </div>
+        `;
+    });
+}
+
+// ============================
+// LOGOUT
+// ============================
+logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = "index.html";
+});
+
+// ============================
+// INIT
+// ============================
+cargarProductos();
+</script>
+
+</body>
+</html>
